@@ -1,0 +1,82 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FundManager
+    network: base-sepolia
+    source:
+      address: "0x4595312F55b82B7AEa83ff8DD45d86C655732839"
+      abi: FundManager
+      startBlock: 22072060
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - WhitelistAddressRemoval
+        - WhitelistAddressAddition
+        - Deposit
+        - Investment
+        - OwnershipTransfer
+        - PortfolioUpdate
+        - Redemption
+        - RedemptionsPause
+        - RedemptionsResume
+      abis:
+        - name: FundManager
+          file: ./abis/FundManager.json
+      eventHandlers:
+        - event: AddressRemovedFromWhitelist(indexed address)
+          handler: handleAddressRemovedFromWhitelist
+        - event: AddressWhitelisted(indexed address)
+          handler: handleAddressWhitelisted
+        - event: Deposited(indexed address,indexed uint256,indexed uint256)
+          handler: handleDeposited
+        - event: Invested(indexed address,indexed uint256)
+          handler: handleInvested
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PortfolioUpdated(indexed uint256,indexed uint256,indexed uint256)
+          handler: handlePortfolioUpdated
+        - event: Redeemed(indexed address,indexed uint256,indexed uint256)
+          handler: handleRedeemed
+        - event: RedemptionsPaused()
+          handler: handleRedemptionsPaused
+        - event: RedemptionsResumed()
+          handler: handleRedemptionsResumed
+      file: ./src/fund-manager.ts
+  - kind: ethereum
+    name: ShareToken
+    network: base-sepolia
+    source:
+      address: "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
+      abi: ShareToken
+      startBlock: 22072060
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ShareTokenOwnershipTransferred
+        - Paused
+        - Transfer
+        - Unpaused
+      abis:
+        - name: ShareToken
+          file: ./abis/ShareToken.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/share-token.ts

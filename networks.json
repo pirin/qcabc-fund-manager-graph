@@ -1,0 +1,11 @@
+{
+  "base-sepolia": {
+    "FundManager": {
+      "address": "0x4595312F55b82B7AEa83ff8DD45d86C655732839",
+      "startBlock": 22072060
+    },
+    "ShareToken": {
+      "address": "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
+    }
+  }
+}

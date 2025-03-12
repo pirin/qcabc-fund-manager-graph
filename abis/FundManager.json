@@ -1,0 +1,417 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_depositToken", "type": "address", "internalType": "address" },
+      { "name": "_shareToken", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  { "name": "FundManager__FundIsInactive", "type": "error", "inputs": [] },
+  {
+    "name": "FundManager__InsufficientTreasuryFunds",
+    "type": "error",
+    "inputs": [
+      { "name": "available", "type": "uint256", "internalType": "uint256" },
+      { "name": "required", "type": "uint256", "internalType": "uint256" }
+    ]
+  },
+  { "name": "FundManager__InvalidCaller", "type": "error", "inputs": [] },
+  {
+    "name": "FundManager__InvalidDepositTokenContract",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "FundManager__InvalidInvestmentAmount",
+    "type": "error",
+    "inputs": []
+  },
+  { "name": "FundManager__InvalidRecipient", "type": "error", "inputs": [] },
+  { "name": "FundManager__InvalidShareAmount", "type": "error", "inputs": [] },
+  {
+    "name": "FundManager__InvalidShareTokenContract",
+    "type": "error",
+    "inputs": []
+  },
+  { "name": "FundManager__RedemptionsPaused", "type": "error", "inputs": [] },
+  {
+    "name": "FundManager__UnauthorizedDepositor",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "OwnableInvalidOwner",
+    "type": "error",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ]
+  },
+  {
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error",
+    "inputs": [
+      { "name": "account", "type": "address", "internalType": "address" }
+    ]
+  },
+  {
+    "name": "SafeERC20FailedOperation",
+    "type": "error",
+    "inputs": [
+      { "name": "token", "type": "address", "internalType": "address" }
+    ]
+  },
+  {
+    "name": "AddressRemovedFromWhitelist",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "addr",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "AddressWhitelisted",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "addr",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Deposited",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "depositAmount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "shareTokensMinted",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Invested",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PortfolioUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newPortfolioValue",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newSharePrice",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Redeemed",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "shareTokensRedeemed",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "depositAmount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RedemptionsPaused",
+    "type": "event",
+    "inputs": [],
+    "anonymous": false
+  },
+  {
+    "name": "RedemptionsResumed",
+    "type": "event",
+    "inputs": [],
+    "anonymous": false
+  },
+  {
+    "name": "VERSION",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "addToDepositorWhitelist",
+    "type": "function",
+    "inputs": [
+      { "name": "addr", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "addToPortfolioUpdatersWhitelist",
+    "type": "function",
+    "inputs": [
+      { "name": "addr", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "allowedToDeposit",
+    "type": "function",
+    "inputs": [
+      { "name": "addr", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "depositFunds",
+    "type": "function",
+    "inputs": [
+      { "name": "amount", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "depositToken",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "investFunds",
+    "type": "function",
+    "inputs": [
+      { "name": "to", "type": "address", "internalType": "address" },
+      { "name": "amount", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "lastPortfolioValueUpdated",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "owner",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "pauseRedemptions",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "portfolioValue",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "redeemShares",
+    "type": "function",
+    "inputs": [
+      { "name": "shareAmount", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "redemptionsAllowed",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "removeFromDepositorWhitelist",
+    "type": "function",
+    "inputs": [
+      { "name": "addr", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "removeFromPortfolioUpdatersWhitelist",
+    "type": "function",
+    "inputs": [
+      { "name": "addr", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "renounceOwnership",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "resumeRedemptions",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setPortfolioValue",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newPortfolioValue",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "sharePrice",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "shareToken",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "sharesOwned",
+    "type": "function",
+    "inputs": [
+      { "name": "depositor", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "totalFundValue",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "totalShares",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "transferOwnership",
+    "type": "function",
+    "inputs": [
+      { "name": "newOwner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "treasuryBalance",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  }
+]
