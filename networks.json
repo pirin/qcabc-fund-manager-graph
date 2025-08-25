@@ -1,11 +1,16 @@
 {
   "base-sepolia": {
     "FundManager": {
-      "address": "0x4595312F55b82B7AEa83ff8DD45d86C655732839",
-      "startBlock": 22072060
+      "address": "0xF5825641F46044b17105eC289b1E9Bc10c044422",
+      "startBlock": 29543163
     },
     "ShareToken": {
-      "address": "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
+      "address": "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012",
+      "startBlock": 22072060
+    },
+    "MembershipBadge": {
+      "address": "0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73",
+      "startBlock": 29547748
     }
   }
 }

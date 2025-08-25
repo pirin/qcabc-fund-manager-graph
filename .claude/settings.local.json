@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/stefankyntchev/work/blockchain/graph/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -6,7 +6,6 @@ Graph Node is an open source Rust implementation that event sources the Ethereum
 
 For detailed instructions and more context, check out the [Getting Started Guide](docs/getting-started.md).
 
-
 ### Quickstart
 
 Install all the dependencies
@@ -16,45 +15,70 @@ yarn install
 ```
 
 ## Project overview
+
 This project contains the infrastructure to run the indexing infrastructure for the [qcabc-fund-manager](https://github.com/pirin/qcabc-fund-manager) project.
+
+Subgraph studio located at https://thegraph.com/studio/ (connect using Metaverse Mask wallet)
 
 Prerequisites - must have qcabc-fund-manager contracts deployed and verified (capture addresses of deployed FundManager and ShareToken contracts)
 
+Verify that you have the latest Graph CLI
+
+```
+npm global add @graphprotocol/graph-cli
+```
+
+Subgraph Slug is: qcabc-fund-manager-graph
+
 Starting project was created by using graph cli tools:
-   $graph init  (select network and contract addresses)
-    
+$graph init (select network and contract addresses)
+
 This crates the core project structure
 
 .
-├── abis                            // contact ABIs
-│   ├── FundManager.json
-│   └── ShareToken.json
-├── generated                      // generated schema files. update by running `$graph codegen` 
-│   ├── FundManager                 
-│   │   └── FundManager.ts         // Event entities (TypeScript types for each emmited FundManager event) - generated from abis/FundManager.json
-│   └── ShareToken.   
-│       └── ShareToken.ts          // Event entities (TypeScript types for each emmited ShareToken event) - generated from abis/ShareToken.json
-├── schema.ts                      // Graph entities (what is stored inGraph DB) - generated from schema.grpahql
-├── src                            // handlers - logic to map event entites to graph entities 
-│   ├── fund-manager.ts *           
-│   └── share-token.ts *
-├── tests                         // matchstick unit tests for the handlers
+├── abis // contact ABIs
+│ ├── FundManager.json
+│ └── ShareToken.json
+├── generated // generated schema files. update by running `$graph codegen`
+│ ├── FundManager  
+│ │ └── FundManager.ts // Event entities (TypeScript types for each emmited FundManager event) - generated from abis/FundManager.json
+│ └── ShareToken.  
+│ └── ShareToken.ts // Event entities (TypeScript types for each emmited ShareToken event) - generated from abis/ShareToken.json
+├── schema.ts // Graph entities (what is stored inGraph DB) - generated from schema.grpahql
+├── src // handlers - logic to map event entites to graph entities
+│ ├── fund-manager.ts _  
+│ └── share-token.ts _
+├── tests // matchstick unit tests for the handlers
 ├── docker-compose.yml
-├── networks.json                 // defines the addresses of the deployed contracts on different chains. Used by `$graph deploy` when deploying to multiple chains
-├── schema.graphql *                // defines the Graph entities that will be stored and can be later queried
-└── subgraph.yaml *                 // main graph config file - defines the relationships between entites, handlers and contracts
+├── networks.json // defines the addresses of the deployed contracts on different chains. Used by `$graph deploy` when deploying to multiple chains
+├── schema.graphql _ // defines the Graph entities that will be stored and can be later queried
+└── subgraph.yaml _ // main graph config file - defines the relationships between entites, handlers and contracts
 
+## To update the graph when contracts change
 
-* If contract changes, update the json files in /abis
-* make changes as needed on files marked with *
-* make sure that names of entities match between schema.graphql and subgraph.yaml
-* use `$graph codegen` to update the generate schemas
-* use `$graph build` to build the subgraph. if using --network (network name from networks.json) to specuify the network
-  this updates the subgraph.yaml with the correct contract addresses from networks.json  
-* when dpolying to The Graph Studio
-  * first use `$graph auth` to authenticate with your deploy key (run only once).
-  * then `$graph deploy` to deploy to studio (this internally calls `$graph build`)
+- update `networks.json` with the addresses of the updated contracts
 
+- refresh the existing contracts
+  `graph build --network base-sepolia`
+
+- add new contracts
+  `graph add 0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73 --contract-name MembershipBadge`
+
+- Generate code
+  `graph codegen`
+
+- Build the updated graph
+  `graph build`
+
+- If contract changes, update the json files in /abis
+- make changes as needed on files marked with \*
+- make sure that names of entities match between schema.graphql and subgraph.yaml
+- use `$graph codegen` to update the generate schemas
+- use `$graph build` to build the subgraph. if using --network (network name from networks.json) to specify the network
+  this updates the subgraph.yaml with the correct contract addresses from networks.json
+- when dpolying to The Graph Studio
+  - first use `$graph auth` to authenticate with your deploy key (run only once).
+  - then `$graph deploy` to deploy to studio (this internally calls `$graph build`)
 
 ## Below are instructions for running local graph node in docker and some helpful information (not neceserily appicable to this project)
 
@@ -136,11 +160,11 @@ yarn local-ship
 
 > This command does the following all in one… 🚀🚀🚀
 
--   Copies the contracts ABI from the hardhat/deployments folder
--   Generates the networks.json file
--   Generates AssemblyScript types from the subgraph schema and the contract ABIs.
--   Compiles and checks the mapping functions.
--   … and deploy a local subgraph!
+- Copies the contracts ABI from the hardhat/deployments folder
+- Generates the networks.json file
+- Generates AssemblyScript types from the subgraph schema and the contract ABIs.
+- Compiles and checks the mapping functions.
+- … and deploy a local subgraph!
 
 > If you get an error ts-node you can install it with the following command
 
@@ -242,40 +266,40 @@ All 1 tests passed! 😎
 
 1. Update the `packages/subgraph/subgraph.yaml` file with your contract address, network name, start block number(optional) :
 
-    ```diff
-    ...
-    -     network: localhost
-    +     network: sepolia
-          source:
-            abi: YourContract
-    +       address: "0x54FE7f8Db97e102D3b7d86cc34D885B735E31E8e"
-    +       startBlock: 5889410
-    ...
-    ```
+   ```diff
+   ...
+   -     network: localhost
+   +     network: sepolia
+         source:
+           abi: YourContract
+   +       address: "0x54FE7f8Db97e102D3b7d86cc34D885B735E31E8e"
+   +       startBlock: 5889410
+   ...
+   ```
 
-    TIP: For `startBlock` you can use block number of your deployed contract, which can be found by visiting deployed transaction hash in blockexplorer.
+   TIP: For `startBlock` you can use block number of your deployed contract, which can be found by visiting deployed transaction hash in blockexplorer.
 
 2. Create a new subgraph on [Subgraph Studio](https://thegraph.com/studio) and get "SUBGRAPH SLUG" and "DEPLOY KEY".
 
 3. Authenticate with the graph CLI:
 
-    ```sh
-    yarn graph auth --studio <DEPLOY KEY>
-    ```
+   ```sh
+   yarn graph auth --studio <DEPLOY KEY>
+   ```
 
 4. Deploy the subgraph to TheGraph Studio:
 
-    ```sh
-    yarn graph deploy --studio <SUBGRAPH SLUG>
-    ```
+   ```sh
+   yarn graph deploy --studio <SUBGRAPH SLUG>
+   ```
 
-    Once deployed, the CLI should output the Subgraph endpoints. Copy the HTTP endpoint and test your queries.
+   Once deployed, the CLI should output the Subgraph endpoints. Copy the HTTP endpoint and test your queries.
 
 5. Update `packages/nextjs/components/ScaffoldEthAppWithProviders.tsx` to use the above HTTP subgraph endpoint:
-    ```diff
-    - const subgraphUri = "http://localhost:8000/subgraphs/name/scaffold-eth/your-contract";
-    + const subgraphUri = 'YOUR_SUBGRAPH_ENDPOINT';
-    ```
+   ```diff
+   - const subgraphUri = "http://localhost:8000/subgraphs/name/scaffold-eth/your-contract";
+   + const subgraphUri = 'YOUR_SUBGRAPH_ENDPOINT';
+   ```
 
 ## A list of all available commands
 

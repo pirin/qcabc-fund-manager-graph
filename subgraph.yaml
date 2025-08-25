@@ -8,9 +8,9 @@ dataSources:
     name: FundManager
     network: base-sepolia
     source:
-      address: "0x4595312F55b82B7AEa83ff8DD45d86C655732839"
       abi: FundManager
-      startBlock: 22072060
+      address: "0xF5825641F46044b17105eC289b1E9Bc10c044422"
+      startBlock: 29543163
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -52,8 +52,8 @@ dataSources:
     name: ShareToken
     network: base-sepolia
     source:
-      address: "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
       abi: ShareToken
+      address: "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
       startBlock: 22072060
     mapping:
       kind: ethereum/events
@@ -80,3 +80,38 @@ dataSources:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/share-token.ts
+  - kind: ethereum
+    name: MembershipBadge
+    network: base-sepolia
+    source:
+      abi: MembershipBadge
+      address: "0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73"
+      startBlock: 29547748
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - MembershipBadgeApproval
+        - ApprovalForAll
+        - OwnershipTransferred
+        - TokenMinted
+        - TokenValidityChanged
+        - MembershipBadgeTransfer
+      abis:
+        - name: MembershipBadge
+          file: ./abis/MembershipBadge.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokenMinted(indexed address,indexed uint256)
+          handler: handleTokenMinted
+        - event: TokenValidityChanged(indexed address,indexed uint256,bool)
+          handler: handleTokenValidityChanged
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/membership-badge.ts
