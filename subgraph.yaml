@@ -1,4 +1,4 @@
-specVersion: 1.2.0
+specVersion: 1.3.0
 indexerHints:
   prune: auto
 schema:
@@ -8,23 +8,27 @@ dataSources:
     name: FundManager
     network: base-sepolia
     source:
-      abi: FundManager
       address: "0xF5825641F46044b17105eC289b1E9Bc10c044422"
+      abi: FundManager
       startBlock: 29543163
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - WhitelistAddressRemoval
-        - WhitelistAddressAddition
-        - Deposit
-        - Investment
-        - OwnershipTransfer
-        - PortfolioUpdate
-        - Redemption
-        - RedemptionsPause
-        - RedemptionsResume
+        - AddressRemovedFromWhitelist
+        - AddressWhitelisted
+        - Deposited
+        - Invested
+        - ManagementFeeCollected
+        - ManagementFeeRecipientUpdated
+        - ManagementFeeUpdated
+        - MembershipBadgeUpdated
+        - OwnershipTransferred
+        - PortfolioUpdated
+        - Redeemed
+        - RedemptionsPaused
+        - RedemptionsResumed
       abis:
         - name: FundManager
           file: ./abis/FundManager.json
@@ -37,6 +41,14 @@ dataSources:
           handler: handleDeposited
         - event: Invested(indexed address,indexed uint256)
           handler: handleInvested
+        - event: ManagementFeeCollected(indexed address,indexed uint256,indexed uint256)
+          handler: handleManagementFeeCollected
+        - event: ManagementFeeRecipientUpdated(indexed address)
+          handler: handleManagementFeeRecipientUpdated
+        - event: ManagementFeeUpdated(indexed uint16)
+          handler: handleManagementFeeUpdated
+        - event: MembershipBadgeUpdated(indexed address)
+          handler: handleMembershipBadgeUpdated
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: PortfolioUpdated(indexed uint256,indexed uint256,indexed uint256)
@@ -52,8 +64,8 @@ dataSources:
     name: ShareToken
     network: base-sepolia
     source:
-      abi: ShareToken
       address: "0x354f8A8e721A11908e8f19eE1156f3C5fDd9c012"
+      abi: ShareToken
       startBlock: 22072060
     mapping:
       kind: ethereum/events
@@ -84,34 +96,25 @@ dataSources:
     name: MembershipBadge
     network: base-sepolia
     source:
-      abi: MembershipBadge
       address: "0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73"
-      startBlock: 29547748
+      abi: MembershipBadge
+      startBlock: 29536774
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - MembershipBadgeApproval
         - ApprovalForAll
-        - OwnershipTransferred
         - TokenMinted
         - TokenValidityChanged
-        - MembershipBadgeTransfer
       abis:
         - name: MembershipBadge
           file: ./abis/MembershipBadge.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: TokenMinted(indexed address,indexed uint256)
           handler: handleTokenMinted
         - event: TokenValidityChanged(indexed address,indexed uint256,bool)
           handler: handleTokenValidityChanged
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
       file: ./src/membership-badge.ts

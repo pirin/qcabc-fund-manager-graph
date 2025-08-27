@@ -22,8 +22,19 @@
     "type": "error",
     "inputs": []
   },
+  { "name": "FundManager__InvalidFeeRecipient", "type": "error", "inputs": [] },
   {
     "name": "FundManager__InvalidInvestmentAmount",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "FundManager__InvalidManagementFee",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "FundManager__InvalidMembershipBadge",
     "type": "error",
     "inputs": []
   },
@@ -31,6 +42,11 @@
   { "name": "FundManager__InvalidShareAmount", "type": "error", "inputs": [] },
   {
     "name": "FundManager__InvalidShareTokenContract",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "FundManager__PortfoliValueIsStale",
     "type": "error",
     "inputs": []
   },
@@ -54,6 +70,7 @@
       { "name": "account", "type": "address", "internalType": "address" }
     ]
   },
+  { "name": "ReentrancyGuardReentrantCall", "type": "error", "inputs": [] },
   {
     "name": "SafeERC20FailedOperation",
     "type": "error",
@@ -127,6 +144,70 @@
         "type": "uint256",
         "indexed": true,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "ManagementFeeCollected",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "depositor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "feeAmount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "depositAmount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "ManagementFeeRecipientUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newRecipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "ManagementFeeUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newFee",
+        "type": "uint16",
+        "indexed": true,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "MembershipBadgeUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "newMembershipBadge",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
@@ -280,6 +361,27 @@
     "stateMutability": "view"
   },
   {
+    "name": "managementFee",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "managementFeeRecipient",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "membershipBadge",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
     "name": "owner",
     "type": "function",
     "inputs": [],
@@ -345,6 +447,37 @@
     "name": "resumeRedemptions",
     "type": "function",
     "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setManagementFee",
+    "type": "function",
+    "inputs": [
+      { "name": "mgmtFee", "type": "uint16", "internalType": "uint16" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setManagementFeeRecipient",
+    "type": "function",
+    "inputs": [
+      { "name": "feeRecipient", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setMembershipBadge",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "membershipBadgeAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },

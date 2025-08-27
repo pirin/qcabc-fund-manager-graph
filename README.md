@@ -33,8 +33,18 @@ Subgraph Slug is: qcabc-fund-manager-graph
 Starting project was created by using graph cli tools:
 $graph init (select network and contract addresses)
 
-This crates the core project structure
+this generates a complete project that uses yarn for package management
 
+for each contract that is imported, init updates:
+  networks.json with name, address and starting block of the contract
+  subgraph.yaml - main config file for the project
+  schena.graphql - storage schema for all events emitted by the contracts
+  abis/<contract>.abi - with the contract abi
+  src/contract.ts - with code tham handles emitted events and saves them to storage
+
+  `graph codegen` generates files in the /generated folder 
+
+This crates the core project structure
 .
 ├── abis // contact ABIs
 │ ├── FundManager.json
@@ -55,14 +65,18 @@ This crates the core project structure
 └── subgraph.yaml _ // main graph config file - defines the relationships between entites, handlers and contracts
 
 ## To update the graph when contracts change
-
 - update `networks.json` with the addresses of the updated contracts
 
 - refresh the existing contracts
   `graph build --network base-sepolia`
 
 - add new contracts
-  `graph add 0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73 --contract-name MembershipBadge`
+  `graph add 0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73 --merge-entities` 
+
+ use merge-entities if multiple contracts have the same events (like approval or transfer etc.)
+
+- Clean the build artifacts with
+  `graph clean`
 
 - Generate code
   `graph codegen`

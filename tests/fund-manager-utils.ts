@@ -5,6 +5,10 @@ import {
   AddressWhitelisted,
   Deposited,
   Invested,
+  ManagementFeeCollected,
+  ManagementFeeRecipientUpdated,
+  ManagementFeeUpdated,
+  MembershipBadgeUpdated,
   OwnershipTransferred,
   PortfolioUpdated,
   Redeemed,
@@ -82,6 +86,89 @@ export function createInvestedEvent(to: Address, amount: BigInt): Invested {
   )
 
   return investedEvent
+}
+
+export function createManagementFeeCollectedEvent(
+  depositor: Address,
+  feeAmount: BigInt,
+  depositAmount: BigInt
+): ManagementFeeCollected {
+  let managementFeeCollectedEvent =
+    changetype<ManagementFeeCollected>(newMockEvent())
+
+  managementFeeCollectedEvent.parameters = new Array()
+
+  managementFeeCollectedEvent.parameters.push(
+    new ethereum.EventParam("depositor", ethereum.Value.fromAddress(depositor))
+  )
+  managementFeeCollectedEvent.parameters.push(
+    new ethereum.EventParam(
+      "feeAmount",
+      ethereum.Value.fromUnsignedBigInt(feeAmount)
+    )
+  )
+  managementFeeCollectedEvent.parameters.push(
+    new ethereum.EventParam(
+      "depositAmount",
+      ethereum.Value.fromUnsignedBigInt(depositAmount)
+    )
+  )
+
+  return managementFeeCollectedEvent
+}
+
+export function createManagementFeeRecipientUpdatedEvent(
+  newRecipient: Address
+): ManagementFeeRecipientUpdated {
+  let managementFeeRecipientUpdatedEvent =
+    changetype<ManagementFeeRecipientUpdated>(newMockEvent())
+
+  managementFeeRecipientUpdatedEvent.parameters = new Array()
+
+  managementFeeRecipientUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "newRecipient",
+      ethereum.Value.fromAddress(newRecipient)
+    )
+  )
+
+  return managementFeeRecipientUpdatedEvent
+}
+
+export function createManagementFeeUpdatedEvent(
+  newFee: i32
+): ManagementFeeUpdated {
+  let managementFeeUpdatedEvent =
+    changetype<ManagementFeeUpdated>(newMockEvent())
+
+  managementFeeUpdatedEvent.parameters = new Array()
+
+  managementFeeUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "newFee",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(newFee))
+    )
+  )
+
+  return managementFeeUpdatedEvent
+}
+
+export function createMembershipBadgeUpdatedEvent(
+  newMembershipBadge: Address
+): MembershipBadgeUpdated {
+  let membershipBadgeUpdatedEvent =
+    changetype<MembershipBadgeUpdated>(newMockEvent())
+
+  membershipBadgeUpdatedEvent.parameters = new Array()
+
+  membershipBadgeUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "newMembershipBadge",
+      ethereum.Value.fromAddress(newMembershipBadge)
+    )
+  )
+
+  return membershipBadgeUpdatedEvent
 }
 
 export function createOwnershipTransferredEvent(
