@@ -16,19 +16,20 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - AddressRemovedFromWhitelist
-        - AddressWhitelisted
-        - Deposited
-        - Invested
+        - Shareholder
+        - WhitelistAddressRemoval
+        - WhitelistAddressAddition
+        - Deposit
+        - Investment
         - ManagementFeeCollected
         - ManagementFeeRecipientUpdated
         - ManagementFeeUpdated
         - MembershipBadgeUpdated
-        - OwnershipTransferred
-        - PortfolioUpdated
-        - Redeemed
-        - RedemptionsPaused
-        - RedemptionsResumed
+        - OwnershipTransfer
+        - PortfolioUpdate
+        - Redemption
+        - RedemptionsPause
+        - RedemptionsResume
       abis:
         - name: FundManager
           file: ./abis/FundManager.json
@@ -73,10 +74,11 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Approval
-        - ShareTokenOwnershipTransferred
+        - ShareTokenOwnershipTransfer
         - Paused
         - Transfer
         - Unpaused
+        - Shareholder
       abis:
         - name: ShareToken
           file: ./abis/ShareToken.json

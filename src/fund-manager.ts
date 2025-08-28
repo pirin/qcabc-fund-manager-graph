@@ -1,3 +1,4 @@
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   AddressRemovedFromWhitelist as AddressRemovedFromWhitelistEvent,
   AddressWhitelisted as AddressWhitelistedEvent,
@@ -14,25 +15,26 @@ import {
   RedemptionsResumed as RedemptionsResumedEvent
 } from "../generated/FundManager/FundManager"
 import {
-  AddressRemovedFromWhitelist,
-  AddressWhitelisted,
-  Deposited,
-  Invested,
+  WhitelistAddressRemoval,
+  WhitelistAddressAddition,
+  Deposit,
+  Investment,
   ManagementFeeCollected,
   ManagementFeeRecipientUpdated,
   ManagementFeeUpdated,
   MembershipBadgeUpdated,
-  OwnershipTransferred,
-  PortfolioUpdated,
-  Redeemed,
-  RedemptionsPaused,
-  RedemptionsResumed
+  OwnershipTransfer,
+  PortfolioUpdate,
+  Redemption,
+  RedemptionsPause,
+  RedemptionsResume,
+  Shareholder,
 } from "../generated/schema"
 
 export function handleAddressRemovedFromWhitelist(
   event: AddressRemovedFromWhitelistEvent
 ): void {
-  let entity = new AddressRemovedFromWhitelist(
+  let entity = new WhitelistAddressRemoval(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.addr = event.params.addr
@@ -45,7 +47,7 @@ export function handleAddressRemovedFromWhitelist(
 }
 
 export function handleAddressWhitelisted(event: AddressWhitelistedEvent): void {
-  let entity = new AddressWhitelisted(
+  let entity = new WhitelistAddressAddition(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.addr = event.params.addr
@@ -58,22 +60,40 @@ export function handleAddressWhitelisted(event: AddressWhitelistedEvent): void {
 }
 
 export function handleDeposited(event: DepositedEvent): void {
-  let entity = new Deposited(
+  let shareholderId = event.params.user;
+
+  //Lookup or create the Shareholder
+  let shareholder = Shareholder.load(shareholderId);
+  if (!shareholder) {
+    shareholder = new Shareholder(shareholderId);
+    shareholder.shares = BigInt.fromI32(0);
+  }
+
+  //Update the Shareholder
+  shareholder.shares = shareholder.shares.plus(event.params.shareTokensMinted);
+  shareholder.account = event.params.user;
+  shareholder.lastUpdated = event.block.timestamp;
+  shareholder.save();
+
+  //Create the Deposit record
+  let entity = new Deposit(
     event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.user = event.params.user
-  entity.depositAmount = event.params.depositAmount
-  entity.shareTokensMinted = event.params.shareTokensMinted
+  );
+  entity.user = event.params.user;
+  entity.depositAmount = event.params.depositAmount;
+  entity.shareTokensMinted = event.params.shareTokensMinted;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
 
-  entity.save()
+  entity.shareholder = shareholderId;
+
+  entity.save();
 }
 
 export function handleInvested(event: InvestedEvent): void {
-  let entity = new Invested(
+  let entity = new Investment(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.to = event.params.to
@@ -151,7 +171,7 @@ export function handleMembershipBadgeUpdated(
 export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent
 ): void {
-  let entity = new OwnershipTransferred(
+  let entity = new OwnershipTransfer(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.previousOwner = event.params.previousOwner
@@ -165,7 +185,7 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePortfolioUpdated(event: PortfolioUpdatedEvent): void {
-  let entity = new PortfolioUpdated(
+  let entity = new PortfolioUpdate(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.newPortfolioValue = event.params.newPortfolioValue
@@ -180,7 +200,25 @@ export function handlePortfolioUpdated(event: PortfolioUpdatedEvent): void {
 }
 
 export function handleRedeemed(event: RedeemedEvent): void {
-  let entity = new Redeemed(
+  let shareholderId = event.params.user;
+
+  //Lookup or create the Shareholder
+  let shareholder = Shareholder.load(shareholderId)
+  if (!shareholder) {
+    shareholder = new Shareholder(shareholderId)
+    shareholder.shares = BigInt.fromI32(0)
+  }
+
+  //Update the Shareholder
+  shareholder.shares = shareholder.shares.minus(
+    event.params.shareTokensRedeemed
+  );
+  shareholder.account = event.params.user;
+  shareholder.lastUpdated = event.block.timestamp
+  shareholder.save()
+
+  //Create the Redeem record
+  let entity = new Redemption(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.user = event.params.user
@@ -191,11 +229,13 @@ export function handleRedeemed(event: RedeemedEvent): void {
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
 
+  entity.shareholder = shareholderId
+  
   entity.save()
 }
 
 export function handleRedemptionsPaused(event: RedemptionsPausedEvent): void {
-  let entity = new RedemptionsPaused(
+  let entity = new RedemptionsPause(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
 
@@ -207,7 +247,7 @@ export function handleRedemptionsPaused(event: RedemptionsPausedEvent): void {
 }
 
 export function handleRedemptionsResumed(event: RedemptionsResumedEvent): void {
-  let entity = new RedemptionsResumed(
+  let entity = new RedemptionsResume(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
 

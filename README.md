@@ -31,47 +31,31 @@ npm global add @graphprotocol/graph-cli
 Subgraph Slug is: qcabc-fund-manager-graph
 
 Starting project was created by using graph cli tools:
-$graph init (select network and contract addresses)
+`$graph init` (select network and contract addresses)
 
 this generates a complete project that uses yarn for package management
 
-for each contract that is imported, init updates:
-  networks.json with name, address and starting block of the contract
-  subgraph.yaml - main config file for the project
-  schena.graphql - storage schema for all events emitted by the contracts
-  abis/<contract>.abi - with the contract abi
-  src/contract.ts - with code tham handles emitted events and saves them to storage
-
-  `graph codegen` generates files in the /generated folder 
-
-This crates the core project structure
+The core project structure looks like this:
 .
-├── abis // contact ABIs
-│ ├── FundManager.json
-│ └── ShareToken.json
+├── abis // contact ABIs downloaded from the published Contracts
 ├── generated // generated schema files. update by running `$graph codegen`
-│ ├── FundManager  
-│ │ └── FundManager.ts // Event entities (TypeScript types for each emmited FundManager event) - generated from abis/FundManager.json
-│ └── ShareToken.  
-│ └── ShareToken.ts // Event entities (TypeScript types for each emmited ShareToken event) - generated from abis/ShareToken.json
-├── schema.ts // Graph entities (what is stored inGraph DB) - generated from schema.grpahql
-├── src // handlers - logic to map event entites to graph entities
-│ ├── fund-manager.ts _  
-│ └── share-token.ts _
-├── tests // matchstick unit tests for the handlers
-├── docker-compose.yml
+├── src // handlers - logic to map events as received from the blockchain and build graph entities
 ├── networks.json // defines the addresses of the deployed contracts on different chains. Used by `$graph deploy` when deploying to multiple chains
-├── schema.graphql _ // defines the Graph entities that will be stored and can be later queried
+├── schema.graphql _ // defines the database schema for the Graph entities that will be stored and can be later queried
 └── subgraph.yaml _ // main graph config file - defines the relationships between entites, handlers and contracts
 
 ## To update the graph when contracts change
 - update `networks.json` with the addresses of the updated contracts
 
-- refresh the existing contracts
-  `graph build --network base-sepolia`
-
-- add new contracts
+- brand new contracts can be added automatically using
   `graph add 0xa6eE8D3DBe03a58CfEc8A6be94fB117fd1389B73 --merge-entities` 
+
+For each new contract that is added, the following new updates are made:
+- `networks.json` with name, address and starting block of the contract
+- `subgraph.yaml` - main config file for the project
+- `schema.graphql` - storage schema for all events emitted by the contracts
+- abis/<contract>.abi - with the contract abi
+- src/contract.ts - with code that handles emitted events and saves them to storage
 
  use merge-entities if multiple contracts have the same events (like approval or transfer etc.)
 
@@ -83,6 +67,41 @@ This crates the core project structure
 
 - Build the updated graph
   `graph build`
+
+## Working with Entity Relationships
+
+When the Graph CLI creates new files, it generates a simple one-to-one mapping between contract events and Graph database schema entities, using the event names as entity names. **By default, there are no relationships between different entities.**
+
+To create meaningful relationships between entities (such as linking deposits and redemptions to shareholders), you need to:
+
+1. **Create custom entities** in `schema.graphql` that represent the relationships
+2. **Update event handlers** to properly manage the creation and updating of these related entities
+
+### Example: Shareholder Entity with Relationships
+
+The `Shareholder` entity demonstrates how to create relationships by aggregating data from multiple events:
+
+**Schema Definition** (`schema.graphql`):
+```graphql
+type Shareholder @entity {
+  id: Bytes! # User address
+  address: Bytes!
+  totalShares: BigInt!
+  totalDeposited: BigInt!
+  totalRedeemed: BigInt!
+  deposits: [Deposit!]! @derivedFrom(field: "shareholder")
+  redemptions: [Redemption!]! @derivedFrom(field: "shareholder")
+  lastActivityTimestamp: BigInt!
+}
+```
+
+**Event Handlers** manage this entity across multiple contract events:
+
+- **Deposit Handler** (`handleDeposit`) creates/updates Shareholder when users deposit funds
+- **Redemption Handler** (`handleRedemption`) updates Shareholder when users redeem shares
+- **Transfer Handler** (`handleTransfer`) updates share balances when tokens are transferred
+
+This approach allows for complex queries like "show all shareholders with their deposit/redemption history" while maintaining data consistency across different contract events.  
 
 - If contract changes, update the json files in /abis
 - make changes as needed on files marked with \*

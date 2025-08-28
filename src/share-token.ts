@@ -1,3 +1,4 @@
+import { Address, BigInt } from "@graphprotocol/graph-ts"
 import {
   Approval as ApprovalEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
@@ -7,10 +8,11 @@ import {
 } from "../generated/ShareToken/ShareToken"
 import {
   Approval,
-  OwnershipTransferred,
-  Paused,
+  ShareTokenOwnershipTransfer,
+  Pause,
   Transfer,
-  Unpaused,
+  Unpause,
+  Shareholder,
 } from "../generated/schema"
 
 export function handleApproval(event: ApprovalEvent): void {
@@ -31,7 +33,7 @@ export function handleApproval(event: ApprovalEvent): void {
 export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent,
 ): void {
-  let entity = new OwnershipTransferred(
+  let entity = new ShareTokenOwnershipTransfer(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
   entity.previousOwner = event.params.previousOwner
@@ -45,7 +47,7 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePaused(event: PausedEvent): void {
-  let entity = new Paused(
+  let entity = new Pause(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
   entity.account = event.params.account
@@ -58,6 +60,37 @@ export function handlePaused(event: PausedEvent): void {
 }
 
 export function handleTransfer(event: TransferEvent): void {
+  // Update sender balance (if not zero address - minting case)
+  if (event.params.from.notEqual(Address.zero())) {
+    let sender = Shareholder.load(event.params.from);
+    if (sender) {
+      let newBalance = sender.shares.minus(event.params.value);
+      // Ensure balance doesn't go negative (safety check)
+      if (newBalance.lt(BigInt.fromI32(0))) {
+        newBalance = BigInt.fromI32(0);
+      }
+      sender.shares = newBalance;
+      sender.lastUpdated = event.block.timestamp;
+      sender.save();
+    }
+  }
+  
+  // Update receiver balance (if not zero address - burning case)
+  if (event.params.to.notEqual(Address.zero())) {
+    let receiver = Shareholder.load(event.params.to);
+    if (!receiver) {
+      // Create new shareholder entity for first-time token receivers
+      receiver = new Shareholder(event.params.to);
+      receiver.account = event.params.to;
+      receiver.shares = BigInt.fromI32(0);
+      receiver.lastUpdated = event.block.timestamp;
+    }
+    receiver.shares = receiver.shares.plus(event.params.value);
+    receiver.lastUpdated = event.block.timestamp;
+    receiver.save();
+  }
+
+  // Log the transfer event
   let entity = new Transfer(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
@@ -73,7 +106,7 @@ export function handleTransfer(event: TransferEvent): void {
 }
 
 export function handleUnpaused(event: UnpausedEvent): void {
-  let entity = new Unpaused(
+  let entity = new Unpause(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
   entity.account = event.params.account
